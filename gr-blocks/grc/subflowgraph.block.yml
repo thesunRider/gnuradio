@@ -1,0 +1,207 @@
+id: subflowgraph
+label: Subflowgraph Block
+category: Misc
+file_format: 1
+
+parameters:
+  - id: name
+    label: Name
+    dtype: string
+
+  - id: cmnt
+    label: Comment
+    dtype: string
+    hide: part
+
+  - id: n_complex
+    label: Input Complex 
+    dtype: int
+    default: 0
+    hide: part
+
+  - id: n_float
+    label: Input Float 
+    dtype: int
+    default: 0
+    hide: part
+
+  - id: n_int
+    label: Input int 
+    dtype: int
+    default: 0
+    hide: part
+
+  - id: n_short
+    label: Input short 
+    dtype: int
+    default: 0
+    hide: part
+
+  - id: n_byte
+    label: Input byte 
+    dtype: int
+    default: 0
+    hide: part
+
+  - id: n_bits
+    label: Input bit 
+    dtype: int
+    default: 0
+    hide: part
+
+
+  - id: n_complex2
+    label: Output Complex 
+    dtype: int
+    default: 0
+    hide: part
+
+  - id: n_float2
+    label: Output Float 
+    dtype: int
+    default: 0
+    hide: part
+
+
+  - id: n_int2
+    label: Output int 
+    dtype: int
+    default: 0
+    hide: part
+
+  - id: n_short2
+    label: Output short 
+    dtype: int
+    default: 0
+    hide: part
+
+  - id: n_byte2
+    label: Output byte 
+    dtype: int
+    default: 0
+    hide: part
+
+  - id: n_bits2
+    label: Output Bits 
+    dtype: int
+    default: 0
+    hide: part
+
+  - id: n_msg
+    label: msgin
+    dtype: int
+    default: 0
+    hide: part
+
+  - id: n_msg2
+    label: msgout
+    dtype: int
+    default: 0
+    hide: part
+
+inputs:
+  # Stream inputs
+
+
+  - id: in_complex
+    label: cin 
+    multiplicity: ${n_complex if n_complex > 0 else 0}
+    dtype: complex
+    hide: ${n_complex == 0}
+    optional: true
+
+  - id: in_float
+    label: fin 
+    multiplicity: ${n_float if n_float > 0 else 0}
+    dtype: float
+    hide: ${n_float == 0}
+    optional: true
+
+
+  - id: in_int
+    label: iin 
+    multiplicity: ${n_int if n_int > 0 else 0}
+    dtype: int
+    hide: ${n_int == 0}
+    optional: true
+
+  - id: in_short
+    label: sin 
+    multiplicity: ${n_short if n_short > 0 else 0}
+    dtype: short
+    hide: ${n_short == 0}
+    optional: true
+
+  - id: in_byte
+    label: bin 
+    multiplicity: ${n_byte if n_byte > 0 else 0}
+    dtype: byte
+    hide: ${n_byte == 0}
+    optional: true
+
+  - id: in_bits
+    label: Bin 
+    multiplicity: ${n_bits if n_bits > 0 else 0}
+    dtype: bits
+    hide: ${n_bits == 0}
+    optional: true
+
+  # Message input
+  - id: msg_in
+    label: min
+    domain: message
+    optional: true
+    hide: ${n_msg == 0}
+
+outputs:
+  # Stream outputs
+  - id: out_complex
+    label: cout 
+    multiplicity: ${n_complex2 if n_complex2 > 0 else 0}
+    dtype: complex
+    hide: ${n_complex2 == 0}
+    optional: true
+
+  - id: out_float
+    label: fout 
+    multiplicity: ${n_float2 if n_float2 > 0 else 0}
+    dtype: float
+    hide: ${n_float2 == 0}
+    optional: true
+
+
+  - id: out_int
+    label: iout 
+    multiplicity: ${n_int2 if n_int2 > 0 else 0}
+    dtype: int
+    hide: ${n_int2 == 0}
+    optional: true
+
+  - id: out_short
+    label: sout 
+    multiplicity: ${n_short2 if n_short2 > 0 else 0}
+    dtype: short
+    hide: ${n_short2 == 0}
+    optional: true
+
+  - id: out_byte
+    label: bout 
+    multiplicity: ${n_byte2 if n_byte2 > 0 else 0}
+    dtype: byte
+    hide: ${n_byte2 == 0}
+    optional: true
+
+  - id: out_bits
+    label: Bout 
+    multiplicity: ${n_bits2 if n_bits2 > 0 else 0}
+    dtype: bits
+    hide: ${n_bits2 == 0}
+    optional: true
+
+  # Message output
+  - id: msg_out
+    label: mout
+    domain: message
+    optional: true
+    hide: ${n_msg2 == 0}
+    
