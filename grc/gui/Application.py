@@ -10,6 +10,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 import logging
 import os
 import subprocess
+from collections import Counter
 
 from gi.repository import Gtk, Gio, GLib, GObject
 from getpass import getuser
@@ -1120,7 +1121,7 @@ class Application(Gtk.Application):
         Actions.BLOCK_DISABLE.set_enabled(can_disable)
         Actions.BLOCK_BYPASS.set_enabled(can_bypass_all)
 
-        
+
         Actions.BLOCK_CREATE_SUBFLOWGRAPH.set_enabled(bool(selected_blocks))
         Actions.BLOCK_POP_SUBFLOWGRAPH.set_enabled(bool(selected_blocks))
         Actions.BLOCK_CREATE_HIER.set_enabled(bool(selected_blocks))

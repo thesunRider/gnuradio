@@ -75,7 +75,7 @@ class Block(Element):
         self.active_sinks = []  # on rewrite
 
         self.states = {'state': 'enabled', 'bus_source': False,
-                       'bus_sink': False, 'bus_structure': None}
+                       'bus_sink': False, 'bus_structure': None,"subflowgraph":None}
         self.block_namespace = {}
         self.deprecated = self.is_deprecated()
 
@@ -102,6 +102,7 @@ class Block(Element):
             return clean_bus_structure
         except Exception:
             return None
+
 
     # region Rewrite_and_Validation
 
@@ -325,6 +326,16 @@ class Block(Element):
     @lazy_property
     def is_snippet(self):
         return self.key == 'snippet'
+
+    @property
+    def is_subflowgraph(self):
+        """Check if current block is subflowgraph or not"""
+        return "subflowgraph" == self.key
+
+    @property
+    def is_under_subflowgraph(self):
+        """Check if block is under a subflowgraph block."""
+        return self.states["subflowgraph"] != None
 
     @property
     def comment(self):

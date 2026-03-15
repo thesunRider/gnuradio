@@ -94,6 +94,16 @@ class Connection(Element):
     def type(self):
         return self.source_port.domain, self.sink_port.domain
 
+
+    @property
+    def is_under_subflowgraph(self):
+        return self.source_block.is_under_subflowgraph or self.sink_block.is_under_subflowgraph 
+
+    @property
+    def is_subflowgraph_connection(self):
+        """Check if connection is to subflowgraph block."""
+        return self.source_block.is_subflowgraph or self.sink_block.is_subflowgraph
+
     @property
     def enabled(self):
         """
