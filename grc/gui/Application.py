@@ -235,6 +235,13 @@ class Application(Gtk.Application):
         # Enable/Disable
         ##################################################
         elif action in (Actions.BLOCK_ENABLE, Actions.BLOCK_DISABLE, Actions.BLOCK_BYPASS):
+            flow_graph = main.current_page.flow_graph
+            for subflowgraph_block in flow_graph.selected_blocks():
+                if subflowgraph_block.is_subflowgraph:
+                    subflow_id = subflowgraph_block.params['id'].get_value()
+                    for block in flow_graph.blocks:
+                        if block.states["subflowgraph"] == subflow_id:
+                            flow_graph.selected_elements.add(block)
             changed = flow_graph.change_state_selected(new_state={
                 Actions.BLOCK_ENABLE: 'enabled',
                 Actions.BLOCK_DISABLE: 'disabled',
