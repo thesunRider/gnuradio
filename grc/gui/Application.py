@@ -891,6 +891,7 @@ class Application(Gtk.Application):
 
         flow_graph.update_selected()
         page.drawing_area.queue_draw()
+        page.minimap.queue_draw()
 
         return True  # Action was handled
 

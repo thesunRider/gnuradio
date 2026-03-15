@@ -15,6 +15,7 @@ from . import Actions
 from .StateCache import StateCache
 from .Constants import MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT
 from .DrawingArea import DrawingArea
+from .Minimap import MiniMap
 from .. import paths
 
 log = logging.getLogger(__name__)
@@ -112,23 +113,34 @@ class Page(Gtk.HBox):
         tab.pack_start(button, False, False, 0)
         tab.show_all()
 
-        # setup scroll window and drawing area
+        MIN_WINDOW_WIDTH = 350
+        MIN_WINDOW_HEIGHT = 200
+
+        # --- create the main canvas ---
         self.drawing_area = DrawingArea(flow_graph)
         flow_graph.drawing_area = self.drawing_area
 
-        self.viewport = Gtk.Viewport()
-        self.viewport.add(self.drawing_area)
-
         self.scrolled_window = Gtk.ScrolledWindow()
-        self.scrolled_window.set_size_request(
-            MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT)
-        self.scrolled_window.set_policy(
-            Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
-        self.scrolled_window.connect(
-            'key-press-event', self._handle_scroll_window_key_press)
+        self.scrolled_window.set_size_request(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT)
+        self.scrolled_window.set_policy(Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
+        self.scrolled_window.connect('key-press-event', self._handle_scroll_window_key_press)
+        self.scrolled_window.add(self.drawing_area)
 
-        self.scrolled_window.add(self.viewport)
-        self.pack_start(self.scrolled_window, True, True, 0)
+        # --- create the overlay ---
+        self.overlay = Gtk.Overlay()
+        self.overlay.add(self.scrolled_window)  # the main scrollable canvas
+
+        self.minimap = MiniMap(flow_graph, self.scrolled_window)
+        self.overlay.add_overlay(self.minimap)  # always on top
+
+        # position minimap at bottom-right corner
+        self.minimap.set_halign(Gtk.Align.END)
+        self.minimap.set_valign(Gtk.Align.END)
+        self.minimap.set_margin_end(10)
+        self.minimap.set_margin_bottom(10)
+
+        # --- pack the overlay ---
+        self.pack_start(self.overlay, True, True, 0)
         self.show_all()
 
     def _handle_scroll_window_key_press(self, widget, event):
