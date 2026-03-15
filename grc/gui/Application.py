@@ -163,6 +163,8 @@ class Application(Gtk.Application):
                 Actions.BLOCK_DISABLE,
                 Actions.BLOCK_BYPASS,
                 Actions.BLOCK_CREATE_HIER,
+                Actions.BLOCK_CREATE_SUBFLOWGRAPH,
+                Actions.BLOCK_POP_SUBFLOWGRAPH,
                 Actions.OPEN_HIER,
                 Actions.BUSSIFY_SOURCES,
                 Actions.BUSSIFY_SINKS,
@@ -256,6 +258,247 @@ class Application(Gtk.Application):
                 flow_graph_update()
                 page.state_cache.save_new_state(flow_graph.export_data())
                 page.saved = False
+        ##################################################
+        # Create SubflowGraph
+        ##################################################
+        elif action == Actions.BLOCK_CREATE_SUBFLOWGRAPH:
+
+            selected_blocks = []
+
+            pads = []
+            params = set()
+
+            for block in flow_graph.selected_blocks():
+                selected_blocks.append(block)
+                # Check for string variables within the blocks
+                for param in block.params.values():
+                    for variable in flow_graph.get_variables():
+                        # If a block parameter exists that is a variable, create a parameter for it
+                        if param.get_value() == variable.name:
+                            params.add(param.get_value())
+                    for flow_param in flow_graph.get_parameters():
+                        # If a block parameter exists that is a parameter, create a parameter for it
+                        if param.get_value() == flow_param.name:
+                            params.add(param.get_value())
+
+            x_min = min(block.coordinate[0] for block in selected_blocks)
+            y_min = min(block.coordinate[1] for block in selected_blocks)
+
+            for connection in flow_graph.connections:
+                # Get id of connected blocks
+                source = connection.source_block
+                sink = connection.sink_block
+
+                if source not in selected_blocks and sink in selected_blocks:
+                    # Create Pad Source
+                    pads.append({
+                        'key': connection.sink_port.key, #the port number of the sink block
+                        'coord': source.coordinate,
+                        # Ignore the options block
+                        'block_index': selected_blocks.index(sink) + 1, #index of the block selected
+                        'direction': 'source', #pad act as source or sink
+                        'key_subflow': connection.source_port.key, #the port number of the block coming
+                        'coord_subflow': sink.coordinate,
+                        'block_index_subflow': flow_graph.blocks.index(source), #index of the selected block
+                        'dtype': connection.source_port.dtype,
+                        # Ignore the options block
+                        'direction_subflow': 'sink',
+                        'subflow_port_key':0 ,
+                        'pad_id':0
+                    })
+
+
+
+                elif sink not in selected_blocks and source in selected_blocks:
+                    # Create Pad Sink
+                    pads.append({
+                        'key': connection.source_port.key, 
+                        'coord': sink.coordinate,
+                        # Ignore the options block
+                        'block_index': selected_blocks.index(source) + 1,
+                        'direction': 'sink',
+                        'key_subflow': connection.sink_port.key,
+                        'coord_subflow': source.coordinate,
+                        'block_index_subflow': flow_graph.blocks.index(sink),
+                        'dtype': connection.sink_port.dtype,
+                        # Ignore the options block
+                        'direction_subflow': 'source',
+                        'subflow_port_key':0,
+                        'pad_id':0
+                    })
+
+
+            flow_graph = main.current_page.flow_graph
+            top_block = flow_graph.options_block
+            parent_id =  top_block.params['id'].get_value()
+
+            
+            #count number of inputs and outputs needed
+            dtype_input_array = []
+            dtype_output_array = []
+
+            points = []
+            for pad in pads:
+                points.append(pad["coord_subflow"])
+                if (pad["direction_subflow"] == "sink"):
+                    dtype_input_array.append(pad["dtype"])
+                else :
+                    dtype_output_array.append(pad["dtype"])
+
+            Actions.BLOCK_COPY()
+
+
+            num_points = len(pads)
+            centroid = [sum(dim_coords) / num_points for dim_coords in zip(*points)]
+
+            subflowgraph_id = flow_graph.add_new_block('subflowgraph', centroid)
+            subflowgraph_block = flow_graph.get_block(subflowgraph_id)
+
+
+            
+            occurences_input = Counter(dtype_input_array)
+            occurences_output = Counter(dtype_output_array)
+
+            for type, count in occurences_input.items():
+                subflowgraph_block.params['n_{0}'.format(type)].set_value(count)
+
+            for type, count in occurences_output.items():
+                subflowgraph_block.params['n_{0}2'.format(type)].set_value(count)
+
+           
+
+            flow_graph_1 = main.current_page.flow_graph
+            flow_graph_update(flow_graph)
+
+
+            main.new_page()
+            flow_graph = main.current_page.flow_graph
+            Actions.BLOCK_PASTE()
+            
+            coords = (x_min, y_min)
+            flow_graph.move_selected(coords)
+            # Remove the default samp_rate variable block that is created
+            remove_me = flow_graph.get_block("samp_rate")
+            flow_graph.remove_element(remove_me)
+
+            top_block = flow_graph.get_block(Constants.DEFAULT_FLOW_GRAPH_ID)
+            # this needs to be a unique name
+            top_block.params['id'].set_value(subflowgraph_id)
+            top_block.params['title'].set_value("SubflowGraph")
+
+            for pad in pads:
+                # add the pad sources and sinks within the new hier block
+                if pad['direction'] == 'sink':
+
+                    # add new pad_sink block to the canvas
+                    pad_id = flow_graph.add_new_block('pad_sink', pad['coord'])
+
+                    # setup the references to the sink and source
+                    pad_block = flow_graph.get_block(pad_id)
+                    pad_sink = pad_block.sinks[0]
+                    pad["pad_id"] = pad_id
+
+                    source_block = flow_graph.get_block(
+                        flow_graph.blocks[pad['block_index']].name)
+                    source = source_block.get_source(pad['key'])
+
+
+                    # ensure the port types match
+                    if pad_sink.dtype != source.dtype:
+                        if pad_sink.dtype == 'complex' and source.dtype == 'fc32':
+                            pass
+                        else:
+                            pad_block.params['type'].value = source.dtype
+                            pad_sink.dtype = source.dtype
+
+                    # connect the pad to the proper sinks
+                    new_connection = flow_graph.connect(source, pad_sink)
+
+                elif pad['direction'] == 'source':
+                    pad_id = flow_graph.add_new_block(
+                        'pad_source', pad['coord'])
+
+                    # setup the references to the sink and source
+                    pad_block = flow_graph.get_block(pad_id)
+                    pad_source = pad_block.sources[0]
+
+                    pad["pad_id"] = pad_id
+
+                    sink_block = flow_graph.get_block(
+                        flow_graph.blocks[pad['block_index']].name)
+                    sink = sink_block.get_sink(pad['key'])
+
+                    # ensure the port types match
+                    if pad_source.dtype != sink.dtype:
+                        if pad_source.dtype == 'complex' and sink.dtype == 'fc32':
+                            pass
+                        else:
+                            pad_block.params['type'].value = sink.dtype
+                            pad_source.dtype = sink.dtype
+
+                    # connect the pad to the proper sinks
+                    new_connection = flow_graph.connect(pad_source, sink)
+
+            Actions.SELECT_ALL()
+            Actions.BLOCK_COPY()
+            clipdata = self.clipboard
+            Actions.NOTHING_SELECT()
+            
+            flow_graph_update(flow_graph)
+            
+
+            flow_graph = flow_graph_1
+
+            indexes_searched_for = []
+            #Get all types of inputs and outputs
+            connected_nodes_source = []
+            connected_nodes_sink = []
+            for pad in pads:
+                log.debug("Connections on: {0}".format(flow_graph.blocks[pad['block_index_subflow']].name))
+
+                if pad["direction_subflow"] == "sink":
+                    source_block = flow_graph.get_block(
+                            flow_graph.blocks[pad['block_index_subflow']].name)
+                    source = source_block.get_source(pad['key_subflow'])
+
+                    for subflowgraph_sink_node in subflowgraph_block.sinks:
+                        if (pad["dtype"] == subflowgraph_sink_node.dtype) and subflowgraph_sink_node not in connected_nodes_source:
+                            new_connection = flow_graph.connect(source, subflowgraph_sink_node)
+                            connected_nodes_source.append(subflowgraph_sink_node)
+                            pad["subflow_port_key"] = new_connection.sink_port.key
+                            break
+
+                if pad["direction_subflow"] == "source":
+                    sink_block = flow_graph.get_block(
+                            flow_graph.blocks[pad['block_index_subflow']].name)
+                    sink = sink_block.get_sink(pad['key_subflow'])
+
+                    for subflowgraph_source_node in subflowgraph_block.sources:
+                        if (pad["dtype"] == subflowgraph_source_node.dtype) and subflowgraph_source_node not in connected_nodes_sink:
+                            new_connection = flow_graph.connect(subflowgraph_source_node, sink)
+                            connected_nodes_sink.append(subflowgraph_source_node)
+                            pad["subflow_port_key"] = new_connection.source_port.key
+                            break
+
+            #subflowgraph_block.set_flowgraphdata(clipdata,pads)
+
+            for i in selected_blocks:
+                i.states["subflowgraph"] = subflowgraph_id
+
+            flow_graph_update(flow_graph)
+        
+        elif action == Actions.BLOCK_POP_SUBFLOWGRAPH:
+            flow_graph = main.current_page.flow_graph
+            for subflowgraph_block in flow_graph.selected_blocks():
+                if subflowgraph_block.is_subflowgraph:
+                    subflow_id = subflowgraph_block.params['id'].get_value()
+                    flow_graph.remove_element(subflowgraph_block)
+                    
+                    for block in flow_graph.blocks:
+                        if block.states["subflowgraph"] == subflow_id:
+                            block.states["subflowgraph"] = None
+
+            flow_graph_update(flow_graph)
         ##################################################
         # Create hier block
         ##################################################
@@ -877,6 +1120,9 @@ class Application(Gtk.Application):
         Actions.BLOCK_DISABLE.set_enabled(can_disable)
         Actions.BLOCK_BYPASS.set_enabled(can_bypass_all)
 
+        
+        Actions.BLOCK_CREATE_SUBFLOWGRAPH.set_enabled(bool(selected_blocks))
+        Actions.BLOCK_POP_SUBFLOWGRAPH.set_enabled(bool(selected_blocks))
         Actions.BLOCK_CREATE_HIER.set_enabled(bool(selected_blocks))
         Actions.OPEN_HIER.set_enabled(bool(selected_blocks))
         Actions.BUSSIFY_SOURCES.set_enabled(any(block.sources for block in selected_blocks))

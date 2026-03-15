@@ -550,6 +550,19 @@ BLOCK_CREATE_HIER = actions.register(
     icon_name='document-new',
     keypresses=["c"],
 )
+BLOCK_CREATE_SUBFLOWGRAPH = actions.register(
+    "win.block_create_subflowgraph",
+    label='C_reate Subflow',
+    tooltip='Create Immediate Subflow graphs from selected blocks',
+    icon_name='document-new',
+    keypresses=["j"],
+)
+BLOCK_POP_SUBFLOWGRAPH = actions.register(
+    "win.block_pop_subflowgraph",
+    label='Pop Subflowgraph',
+    tooltip='Pop the selected Subflowgraph',
+    icon_name='document-new',
+)
 BLOCK_CUT = actions.register(
     "win.block_cut",
     label='Cu_t',
