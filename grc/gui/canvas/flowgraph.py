@@ -499,6 +499,8 @@ class FlowGraph(CoreFlowgraph, Drawable):
         del self._elements_to_draw[:]
 
         for element in elements:
+            if element.is_under_subflowgraph :
+                continue #skip drawing connections if part of subflowgraph
             if hide_disabled_blocks and not element.enabled:
                 continue  # skip hidden disabled blocks and connections
             if hide_variables and (element.is_variable or element.is_import):

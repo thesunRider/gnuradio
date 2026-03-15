@@ -112,10 +112,22 @@ class Port(Element):
         try:
             domain = platform.domains[self.domain]
             if self.is_sink and not domain.multi_in and num_connections > 1:
-                self.add_error_message('Domain "{}" can have only one upstream block'
+                connection_to_subflowgrah = False
+                for connection in list(self.connections(enabled=True)):
+                    if connection.is_subflowgraph_connection:
+                        connection_to_subflowgrah = True
+
+                if not connection_to_subflowgrah :
+                    self.add_error_message('Domain "{}" can have only one upstream block'
                                        ''.format(self.domain))
             if self.is_source and not domain.multi_out and num_connections > 1:
-                self.add_error_message('Domain "{}" can have only one downstream block'
+                connection_to_subflowgrah = False
+                for connection in list(self.connections(enabled=True)):
+                    if connection.is_subflowgraph_connection:
+                        connection_to_subflowgrah = True
+
+                if not connection_to_subflowgrah :
+                    self.add_error_message('Domain "{}" can have only one downstream block'
                                        ''.format(self.domain))
         except KeyError:
             self.add_error_message(

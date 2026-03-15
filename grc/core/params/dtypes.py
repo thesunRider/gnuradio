@@ -63,7 +63,8 @@ def validate_block_id(param, black_listed_ids: List[str]) -> None:
     # Id should only appear once, or zero times if block is disabled
     if param.key == 'id' and block_names.count(value) > 1:
         raise ValidateError('ID "{}" is not unique.'.format(value))
-    elif value not in block_names:
+    #imporve by matching for subflowgraph block key
+    elif value not in block_names and not "subflowgraph" in value:
         raise ValidateError('ID "{}" does not exist.'.format(value))
 
 

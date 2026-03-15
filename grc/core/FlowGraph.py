@@ -145,7 +145,7 @@ class FlowGraph(Element):
         """
         Get an iterator of all blocks that are enabled and not bypassed.
         """
-        return (block for block in self.blocks if block.enabled)
+        return (block for block in self.blocks if block.enabled and not block.is_subflowgraph)
 
     def get_enabled_blocks(self) -> List[Element]:
         """
@@ -172,7 +172,7 @@ class FlowGraph(Element):
         Returns:
             a list of connections
         """
-        return [connection for connection in self.connections if connection.enabled]
+        return [connection for connection in self.connections if connection.enabled and not connection.is_subflowgraph_connection]
 
     def get_option(self, key) -> Param.EvaluationType:
         """

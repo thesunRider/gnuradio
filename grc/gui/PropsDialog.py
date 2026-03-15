@@ -183,6 +183,8 @@ class PropsDialog(Gtk.Dialog):
                 force_show_id = Actions.TOGGLE_SHOW_BLOCK_IDS.get_active()
 
                 for param in self._block.params.values():
+                    if self._block.key == "subflowgraph" and param.dtype != "string":
+                        continue
                     if force_show_id and param.dtype == 'id':
                         param.hide = 'none'
                     # todo: why do we even rebuild instead of really hiding params?

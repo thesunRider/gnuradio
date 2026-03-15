@@ -167,7 +167,7 @@ class PythonGeneratorBase(CoreGeneratorBase):
 
         blocks = [
             b for b in fg.blocks
-            if b.enabled and not (b.get_bypassed() or b.is_import or b.is_snippet or b in parameters or b.key == 'options')
+            if b.enabled and not (b.is_subflowgraph or b.get_bypassed() or b.is_import or b.is_snippet or b in parameters or b.key == 'options')
         ]
 
         blocks = expr_utils.sort_objects(
@@ -675,7 +675,7 @@ class CppGeneratorBase(CoreGeneratorBase):
 
         blocks = [
             b for b in fg.blocks
-            if b.enabled and not (b.get_bypassed() or b.is_import or b in parameters or b.key == 'options' or b.is_virtual_source() or b.is_virtual_sink())
+            if b.enabled and not (b.is_subflowgraph or b.get_bypassed() or b.is_import or b in parameters or b.key == 'options' or b.is_virtual_source() or b.is_virtual_sink())
         ]
 
         blocks = expr_utils.sort_objects(
