@@ -110,6 +110,7 @@ CONTEXT_MENU_LIST = [
         Actions.BLOCK_ENABLE, Actions.BLOCK_DISABLE, Actions.BLOCK_BYPASS],
     [("_More", [
         [Actions.BLOCK_CREATE_HIER, Actions.OPEN_HIER],
+        [Actions.BLOCK_CREATE_SUBFLOWGRAPH, Actions.BLOCK_POP_SUBFLOWGRAPH],
         [Actions.BUSSIFY_SOURCES, Actions.BUSSIFY_SINKS]
     ])],
     [Actions.BLOCK_PARAM_MODIFY],
