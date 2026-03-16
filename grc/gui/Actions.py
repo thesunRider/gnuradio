@@ -526,7 +526,7 @@ TOGGLE_HIDE_MINIMAP = actions.register(
     label='Toggle _Minimap',
     tooltip='Hide or Show Minimap',
     preference_name='toggle_minimap',
-    default=False,
+    keypresses=["<Ctrl>m"],
 )
 TOGGLE_SHOW_BLOCK_COMMENTS = actions.register(
     "win.show_block_comments",
