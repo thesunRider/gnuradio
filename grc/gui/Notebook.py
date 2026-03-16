@@ -113,8 +113,8 @@ class Page(Gtk.HBox):
         tab.pack_start(button, False, False, 0)
         tab.show_all()
 
-        MIN_WINDOW_WIDTH = 350
-        MIN_WINDOW_HEIGHT = 200
+        MIN_WINDOW_WIDTH = 100
+        MIN_WINDOW_HEIGHT = 100
 
         # --- create the main canvas ---
         self.drawing_area = DrawingArea(flow_graph)
