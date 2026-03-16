@@ -133,9 +133,10 @@ class Page(Gtk.HBox):
         self.minimap = MiniMap(flow_graph, self.scrolled_window)
         self.overlay.add_overlay(self.minimap)  # always on top
 
-        # position minimap at bottom-right corner
         self.minimap.set_halign(Gtk.Align.END)
         self.minimap.set_valign(Gtk.Align.START)
+        self.minimap.set_margin_top(10)
+        self.minimap.set_margin_start(10)
         self.minimap.set_margin_end(10)
         self.minimap.set_margin_bottom(10)
 
