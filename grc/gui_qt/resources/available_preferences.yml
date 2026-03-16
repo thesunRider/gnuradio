@@ -31,8 +31,8 @@ categories:
         name: Hide disabled blocks
         dtype: bool
         default: False
-       - key: hide_minimap
-        name: Hide MiniMap Display 
+       - key: toggle_minimap
+        name: Toggle MiniMap Display 
         dtype: bool
         default: true 
       - key: auto_hide_port_labels

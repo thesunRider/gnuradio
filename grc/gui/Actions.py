@@ -522,10 +522,10 @@ TOGGLE_AUTO_HIDE_PORT_LABELS = actions.register(
     default=False,
 )
 TOGGLE_HIDE_MINIMAP = actions.register(
-    "win.hide_minimap",
-    label='Toggle Hide Minimap',
+    "win.toggle_minimap",
+    label='Toggle _Minimap',
     tooltip='Hide or Show Minimap',
-    preference_name='hide_minimap',
+    preference_name='toggle_minimap',
     default=False,
 )
 TOGGLE_SHOW_BLOCK_COMMENTS = actions.register(
