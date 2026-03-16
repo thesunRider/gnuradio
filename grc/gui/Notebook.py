@@ -135,7 +135,7 @@ class Page(Gtk.HBox):
 
         # position minimap at bottom-right corner
         self.minimap.set_halign(Gtk.Align.END)
-        self.minimap.set_valign(Gtk.Align.END)
+        self.minimap.set_valign(Gtk.Align.START)
         self.minimap.set_margin_end(10)
         self.minimap.set_margin_bottom(10)
 
