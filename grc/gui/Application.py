@@ -191,6 +191,7 @@ class Application(Gtk.Application):
                 Actions.TOGGLE_SHOW_PARAMETER_EVALUATION,
                 Actions.TOGGLE_SHOW_BLOCK_IDS,
                 Actions.TOGGLE_SHOW_FIELD_COLORS,
+                Actions.TOGGLE_HIDE_MINIMAP
             ):
                 action.set_enabled(True)
                 if hasattr(action, 'load_from_preferences'):
@@ -486,6 +487,11 @@ class Application(Gtk.Application):
             action.save_to_preferences()
             for page in main.get_pages():
                 page.flow_graph.create_shapes()
+        elif action == Actions.TOGGLE_HIDE_MINIMAP:
+            page.minimap.toggle_visibility()
+            action.set_active(not action.get_active())
+            action.save_to_preferences()
+
         elif action in (Actions.TOGGLE_SNAP_TO_GRID,
                         Actions.TOGGLE_SHOW_BLOCK_COMMENTS,
                         Actions.TOGGLE_SHOW_CODE_PREVIEW_TAB):

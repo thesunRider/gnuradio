@@ -31,9 +31,12 @@ class MiniMap(Gtk.DrawingArea):
         self.connect("button-press-event", self.on_press)
         self.connect("button-release-event", self.on_release)
         self.connect("motion-notify-event", self.on_motion)
+        self.visible = False
+
+    def toggle_visibility(self):
+        self.visible = not self.visible
 
     def compute_scale(self):
-
         x0, y0, x1, y1 = self.flow_graph.get_extents()
         
         width = self.get_allocated_width() 
@@ -50,7 +53,8 @@ class MiniMap(Gtk.DrawingArea):
         return (width / graph_w ,  height / graph_h )
 
     def draw(self, widget, cr):
-
+        if not self.visible:
+            return
         width = self.get_allocated_width()
         height = self.get_allocated_height()
 
